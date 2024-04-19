@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	errorForAddTask()
+	square()
+	//errorForAddTask()
 }
 
 func square() {

@@ -99,10 +99,6 @@ func (m *manager) Done() {
 	m.wg.Wait()
 }
 
-func NewPool(workerNumber int) (*manager, error) {
-	return newManager(workerNumber)
-}
-
 type worker struct {
 	wg *sync.WaitGroup // manager.wg
 	tq chan task       // manager.tq
@@ -122,11 +118,20 @@ func newWorker(wg *sync.WaitGroup, tq chan task, id int) *worker {
 }
 
 func (w *worker) run() {
+	defer w.wg.Done()
 	// 使用range可以在w.tq被close之后，将w.tq排空后自动退出
 	for f := range w.tq {
 		log.Println("doing task")
 		f()
 	}
 	log.Printf("worker %d done", w.id)
-	w.wg.Done()
+}
+
+type Pool interface {
+	AddTask(task) error
+	Done()
+}
+
+func NewPool(workerNumber int) (Pool, error) {
+	return newManager(workerNumber)
 }
