@@ -10,9 +10,9 @@ import (
 const MaxWorkerNumber = 10000
 
 var (
-	WorkerNumberTooSmall = errors.New("worker number must > 0")
-	WorkerNumberTooLarge = errors.New(fmt.Sprintf("worker number must <= %d", MaxWorkerNumber))
-	TaskQueueDone        = errors.New("task queue done, no more task")
+	ErrWorkerNumberTooSmall = errors.New("worker number must > 0")
+	ErrWorkerNumberTooLarge = errors.New(fmt.Sprintf("worker number must <= %d", MaxWorkerNumber))
+	ErrTaskQueueDone        = errors.New("task queue done, no more task")
 )
 
 type task func()
@@ -71,17 +71,17 @@ func newManager(workerNumber int) (*manager, error) {
 
 func checkWorkerNumber(workerNumber int) error {
 	if workerNumber <= 0 {
-		return WorkerNumberTooSmall
+		return ErrWorkerNumberTooSmall
 	}
 	if workerNumber > MaxWorkerNumber {
-		return WorkerNumberTooLarge
+		return ErrWorkerNumberTooLarge
 	}
 	return nil
 }
 
 func (m *manager) AddTask(f task) error {
 	if m.df.get() {
-		return TaskQueueDone
+		return ErrTaskQueueDone
 	}
 	m.tq <- f
 	return nil
